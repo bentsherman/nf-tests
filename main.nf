@@ -1,35 +1,23 @@
 
-params.n_tasks = 10
-params.array_size = 10
+process AGGREGATE {
+  container "quay.io/nextflow/bash"
+  publishDir "results", mode: "copy"
 
-process foo {
-    array params.array_size
+  input:
+  path(samples), stageAs: 'AnalysisFiles/'
 
-    input:
-    val index
-    output:
-    path 'output.txt'
+  output:
+  path("AnalysisFiles/*.txt", includeInputs: true)
+  path("AnalysisFiles/Analysis_on_*")
 
-    script:
-    """
-    echo "Hello from task ${index}!" > output.txt
-    """
-}
-
-process bar {
-    debug true
-    array params.array_size
-
-    input:
-    path 'input.txt'
-
-    script:
-    """
-    cat input.txt
-    """
+  script:
+  """
+  for name in AnalysisFiles/*.txt; do
+    touch AnalysisFiles/Analysis_on_\$(basename \${name} .txt)
+  done
+  """
 }
 
 workflow {
-    Channel.of(1 .. params.n_tasks) | foo | bar
+  AGGREGATE( files("$projectDir/files/*") )
 }
-
