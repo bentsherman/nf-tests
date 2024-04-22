@@ -1,7 +1,7 @@
 
 process AGGREGATE {
   container "quay.io/nextflow/bash"
-  publishDir "results", mode: "copy"
+  publishDir "results"
 
   input:
   path(samples), stageAs: 'AnalysisFiles/'
